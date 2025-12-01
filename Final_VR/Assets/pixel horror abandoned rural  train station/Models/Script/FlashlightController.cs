@@ -1,4 +1,4 @@
-using Oculus.Interaction;
+/*using Oculus.Interaction;
 
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit; // ต้องมี XR Toolkit
@@ -37,4 +37,4 @@ public class FlashlightController : MonoBehaviour
 
         if (clickSound != null) audioSource.PlayOneShot(clickSound);
     }
-}
+}*/
