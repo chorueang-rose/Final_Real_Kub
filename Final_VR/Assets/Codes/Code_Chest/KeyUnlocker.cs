@@ -30,7 +30,7 @@ public class KeyUnlocker : MonoBehaviour
         if (!isLocked) return;
 
         // àªç¤ÇèÒà»ç¹¡Ø­á¨ÁÑéÂ
-        KeyItem key = other.GetComponent<KeyItem>();
+        KeyItem key = other.GetComponentInParent<KeyItem>();
 
         if (key != null)
         {
@@ -38,6 +38,7 @@ public class KeyUnlocker : MonoBehaviour
             if (key.keyID == requiredKeyID)
             {
                 UnlockNow();
+                Debug.Log("Chest Unlock!");
                 if (destroyKeyAfterUse) Destroy(key.gameObject); // Åº¡Ø­á¨·Ôé§
             }
             else
@@ -47,6 +48,7 @@ public class KeyUnlocker : MonoBehaviour
             }
         }
     }
+
 
     void UnlockNow()
     {
