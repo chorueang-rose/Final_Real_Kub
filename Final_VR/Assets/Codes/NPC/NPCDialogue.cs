@@ -1,44 +1,89 @@
 using UnityEngine;
-using TMPro; // เรียกใช้ TextMeshPro
+using TMPro;
 
 public class NPCDialogue : MonoBehaviour
 {
-    [Header("UI setting")]
-    public GameObject dialogueCanvas; // ลาก Canvas ที่เราสร้างไว้มาใส่
-    public TMP_Text textComponent;    // ลากตัว TextMeshPro มาใส่
+    [Header("UI")]
+    public GameObject dialogueCanvas;
+    public TMP_Text textComponent;
 
     [TextArea]
-    public string message = "สวัสดี! ยินดีที่ได้รู้จัก"; // พิมพ์ข้อความตรงนี้ได้เลย
+    public string message = "สวัสดี! ช่วยหาตั๋วให้ฉันหน่อย";
+    [TextArea]
+    public string thankYouMessage = "ขอบคุณมาก! ฉันไปล่ะนะ";
 
-    [Header("player setting")]
-    public string playerTag = "Player"; // เช็คว่า Tag ของตัวละครเราชื่ออะไร (ปกติคือ Player)
+    [Header("Tag")]
+    public string playerTag = "Player";
+    public string ticketTag = "Ticket";
+
+    [Header("Disappear")]
+    public GameObject npcRootObject; // <--- 1. เพิ่มตัวนี้เข้ามา (ลากตัวแม่มาใส่ตรงนี้)
+    public float destroyDelay = 3.0f;
+    public GameObject effectObj;
+
+    private bool isQuestCompleted = false;
 
     private void Start()
     {
-        // เริ่มเกมมา ปิดข้อความไว้ก่อน
-        if (dialogueCanvas != null)
-            dialogueCanvas.SetActive(false);
+        if (dialogueCanvas != null) dialogueCanvas.SetActive(false);
+        if (textComponent != null) textComponent.text = message;
 
-        // ใส่ข้อความลงไป
-        if (textComponent != null)
-            textComponent.text = message;
+        // กันลืม: ถ้าไม่ได้ลากตัวแม่มาใส่ ให้เดาว่าตัวแม่คือตัว Parent ของ Trigger นี้
+        if (npcRootObject == null)
+        {
+            npcRootObject = transform.parent.gameObject;
+        }
     }
 
-    // เมื่อเดินเข้าวง
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag(playerTag))
         {
-            dialogueCanvas.SetActive(true); // เปิดข้อความ
+            if (dialogueCanvas != null) dialogueCanvas.SetActive(true);
+        }
+        else if (other.CompareTag(ticketTag) && !isQuestCompleted)
+        {
+            AcceptTicket(other.gameObject);
         }
     }
 
-    // เมื่อเดินออกจากวง
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag(playerTag))
         {
-            dialogueCanvas.SetActive(false); // ปิดข้อความ
+            if (dialogueCanvas != null) dialogueCanvas.SetActive(false);
         }
+    }
+
+    void AcceptTicket(GameObject ticketObj)
+    {
+        isQuestCompleted = true;
+
+        if (textComponent != null) textComponent.text = thankYouMessage;
+        if (dialogueCanvas != null) dialogueCanvas.SetActive(true);
+
+        Destroy(ticketObj); // ลบตั๋ว
+
+        // --- ส่วนที่แก้: สั่งลบตัวแม่ (npcRootObject) แทนตัวสคริปต์เอง ---
+        if (npcRootObject != null)
+        {
+            Destroy(npcRootObject, destroyDelay);
+        }
+        else
+        {
+            // ถ้าหาตัวแม่ไม่เจอจริงๆ ก็ลบตัวเองไปก่อน (กัน Error)
+            Destroy(gameObject, destroyDelay);
+        }
+
+        if (effectObj != null)
+        {
+            StartCoroutine(SpawnEffectAfterDelay());
+        }
+    }
+
+    System.Collections.IEnumerator SpawnEffectAfterDelay()
+    {
+        yield return new WaitForSeconds(destroyDelay);
+        Instantiate(effectObj, transform.position, transform.rotation);
     }
 }
