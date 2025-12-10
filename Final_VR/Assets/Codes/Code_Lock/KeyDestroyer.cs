@@ -31,6 +31,7 @@ public class KeyDestroyer : MonoBehaviour
             if (key.keyID == requiredKeyID)
             {
                 SmashIt(key.gameObject);
+                
             }
         }
     }
@@ -39,27 +40,31 @@ public class KeyDestroyer : MonoBehaviour
     {
         isDestroyed = true;
 
-        // --- ส่วนที่ 1: เล่น Effect ---
-        if (audioSource && destroySound)
-            audioSource.PlayOneShot(destroySound);
+        // --- แก้ส่วนที่ 1: เปลี่ยนวิธีเล่นเสียง ---
+        // เช็คว่ามีไฟล์เสียงมั้ย
+        if (destroySound != null)
+        {
+            // คำสั่งนี้จะสร้างเสียงขึ้นมาเอง โดยไม่ง้อ AudioSource ของวัตถุ
+            // (ไฟล์เสียง, ตำแหน่งที่จะให้ดัง, ความดัง 0-1)
+            AudioSource.PlayClipAtPoint(destroySound, transform.position, 1.0f);
+        }
 
+        // --- ส่วนที่ 2: สร้าง Effect (เหมือนเดิม) ---
         if (destroyEffect != null)
             Instantiate(destroyEffect, objectToDestroy.transform.position, objectToDestroy.transform.rotation);
 
-        // --- ส่วนที่ 2: ทำลายเป้าหมาย ---
+        // --- ส่วนที่ 3: ทำลายของ (เหมือนเดิม) ---
         if (objectToDestroy != null)
         {
             Destroy(objectToDestroy);
-            Debug.Log("ทำลายสิ่งกีดขวางแล้ว!");
         }
 
-        // --- ส่วนที่ 3: จัดการกุญแจ/อาวุธ ---
         if (destroyKeyAfterUse)
         {
-            Destroy(keyObj); // เช่น ถ้าระเบิดทำงานแล้ว ตัวระเบิดต้องหายไป
+            Destroy(keyObj);
         }
 
-        // (แถม) ทำลายตัว Trigger นี้ทิ้งด้วยเลย จะได้ไม่เกะกะ
-        Destroy(gameObject, 0.5f);
+        // ทำลาย Trigger ทิ้ง
+        Destroy(gameObject);
     }
 }

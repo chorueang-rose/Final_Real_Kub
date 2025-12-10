@@ -34,6 +34,7 @@ public class SpawnOnTrigger : MonoBehaviour
             if (key.keyID == requiredKeyID)
             {
                 SpawnObject();
+                
 
                 // 5. ถ้าตั้งให้ลบกุญแจทิ้ง -> ลบเลย
                 if (destroyKeyAfterUse)
@@ -52,7 +53,13 @@ public class SpawnOnTrigger : MonoBehaviour
             Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
 
             // เล่นเสียง (ถ้ามี)
-            if (audioSource && spawnSound) audioSource.PlayOneShot(spawnSound);
+            //if (audioSource && spawnSound) audioSource.PlayOneShot(spawnSound);
+            if (spawnSound != null)
+            {
+                // คำสั่งนี้จะสร้างเสียงขึ้นมาเอง โดยไม่ง้อ AudioSource ของวัตถุ
+                // (ไฟล์เสียง, ตำแหน่งที่จะให้ดัง, ความดัง 0-1)
+                AudioSource.PlayClipAtPoint(spawnSound, transform.position, 1.0f);
+            }
 
             hasSpawned = true; // มาร์คว่าเสกแล้วนะ
             Debug.Log("ไขกุญแจผ่าน! เสกของเรียบร้อย");
